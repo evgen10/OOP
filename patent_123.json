@@ -1,0 +1,8 @@
+﻿{
+  "Number": "123",
+  "Title": "Example Patent",
+  "Authors": "John Doe",
+  "DatePublished": "2023-01-15T00:00:00",
+  "ExpirationDate": "2033-01-15T00:00:00",
+  "UniqueId": "ABC123"
+}
