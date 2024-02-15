@@ -1,35 +1,32 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using OOP.Caching;
+using OOP.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using OOP.Caching;
-using OOP.Logging;
-using OOP.Storage;
 
-namespace OOP
+namespace OOP.Storage
 {
-    public class DocumentManager
+    internal class FileSystemStorage : IDocumentStorage
     {
-        private readonly IDocumentStorage _documentStorage;
-        private readonly ICaching _cache;
         private readonly ILogger _logger;
-        
+        private readonly ICaching _cache;
 
-        public DocumentManager(IDocumentStorage documentStorage, ICaching cache, ILogger logger)
+        public FileSystemStorage(ICaching cache, ILogger logger)
         {
-            _documentStorage = documentStorage;
             _cache = cache;
-            _logger = logger;
+            _logger = logger;            
         }
 
-
-        public Document? SearchDocumentByNumber(int number)
+        public void AddToStore(Document document)
         {
-            if (_cache.TryGet(number, out var doc))
-                return doc;       
+            throw new NotImplementedException();
+        }
 
+        public Document GetFromStore(int number)
+        {
             var documentFiles = Directory.GetFiles(Directory.GetCurrentDirectory(), $"*_{number}.json");
 
             foreach (var file in documentFiles)
@@ -38,7 +35,7 @@ namespace OOP
 
                 switch (documentType)
                 {
-                    case "patent": /// use Enum instead
+                    case "patent":
                         var patent = JsonConvert.DeserializeObject<Patent>(File.ReadAllText(file));
                         _cache.Add(number, patent);
                         return patent;
@@ -52,15 +49,16 @@ namespace OOP
                         return localizedBook;
                     case "magazine":
                         var magazine = JsonConvert.DeserializeObject<Magazine>(File.ReadAllText(file));
-                        _cache.Add(number,magazine);
+                        _cache.Add(number, magazine);
                         return magazine;
                     default:
-                        _logger.Log("Unsupported document type");
+                        Console.WriteLine("Unsupported document type");
                         return null;
                 }
+
+
             }
 
-            _logger.Log("Document not found");
             return null;
         }
     }
